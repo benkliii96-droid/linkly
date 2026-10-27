@@ -48,71 +48,69 @@ function App() {
     }
   }
 
+  async function copyShort(codeValue: string) {
+    const short = `${window.location.origin}/api/r/${codeValue}`
+    await navigator.clipboard.writeText(short)
+    setLastShort(short)
+  }
+
   async function removeLink(id: number) {
     await api.delete(`/links/${id}`)
     await load()
   }
 
   return (
-    <div className="shell">
-      <header>
-        <h1>Linkly</h1>
-        <p className="muted">Сокращатель ссылок · React + PHP</p>
-      </header>
+    <div className="ticket-wrap">
+      <div className="glow" aria-hidden />
+      <main className="ticket">
+        <div className="perforation" aria-hidden />
+        <header>
+          <p className="brand">LINKLY</p>
+          <h1>Короткие ссылки с характером</h1>
+          <p className="sub">Вставь длинный URL — получи билет на клики.</p>
+        </header>
 
-      <form className="card" onSubmit={onCreate}>
-        <h2>Сократить URL</h2>
-        <label>
-          Длинная ссылка
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com/very/long/path"
-            required
-          />
-        </label>
-        <label>
-          Кастомный код (опционально)
-          <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="my-link" />
-        </label>
-        {error && <p className="error">{error}</p>}
-        {lastShort && (
-          <p className="ok">
-            Готово: <code>{lastShort}</code>
-          </p>
-        )}
-        <button type="submit">Создать</button>
-      </form>
+        <form onSubmit={onCreate}>
+          <label>
+            Длинный URL
+            <input
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com/very/long/path"
+              required
+            />
+          </label>
+          <label>
+            Свой код
+            <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="optional-code" />
+          </label>
+          {error && <p className="error">{error}</p>}
+          {lastShort && (
+            <p className="ok">
+              Скопировано / готово: <code>{lastShort}</code>
+            </p>
+          )}
+          <button type="submit">SHORTEN</button>
+        </form>
 
-      <section className="card">
-        <h2>Мои ссылки</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Код</th>
-              <th>URL</th>
-              <th>Клики</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {links.map((l) => (
-              <tr key={l.id}>
-                <td>
-                  <code>{l.code}</code>
-                </td>
-                <td className="url">{l.url}</td>
-                <td>{l.clicks}</td>
-                <td>
-                  <button type="button" className="danger" onClick={() => removeLink(l.id)}>
-                    Удалить
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+        <section className="stack">
+          <h2>Твои билеты</h2>
+          {links.map((l) => (
+            <article key={l.id} className="stub">
+              <div>
+                <code>/{l.code}</code>
+                <p>{l.url}</p>
+              </div>
+              <div className="meta">
+                <span>{l.clicks} clicks</span>
+                <button type="button" onClick={() => copyShort(l.code)}>copy</button>
+                <button type="button" className="danger" onClick={() => removeLink(l.id)}>del</button>
+              </div>
+            </article>
+          ))}
+          {links.length === 0 && <p className="empty">Пока пусто — создай первую ссылку.</p>}
+        </section>
+      </main>
     </div>
   )
 }
